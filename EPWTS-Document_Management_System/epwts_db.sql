@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 08, 2026 at 11:38 AM
+-- Generation Time: Apr 20, 2026 at 02:14 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -20,6 +20,54 @@ SET time_zone = "+00:00";
 --
 -- Database: `epwts_db`
 --
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `backup_logs`
+--
+
+CREATE TABLE `backup_logs` (
+  `id` int(11) NOT NULL,
+  `backup_type` enum('database','files','document_deletion') NOT NULL,
+  `created_by` varchar(50) NOT NULL,
+  `file_path` varchar(255) DEFAULT NULL,
+  `file_size` varchar(50) DEFAULT NULL,
+  `file_count` int(11) DEFAULT 0,
+  `status` enum('success','failed','partial') DEFAULT 'success',
+  `notes` text DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `backup_logs`
+--
+
+INSERT INTO `backup_logs` (`id`, `backup_type`, `created_by`, `file_path`, `file_size`, `file_count`, `status`, `notes`, `created_at`) VALUES
+(1, 'database', 'admin', '../../backups/epwts_db_2026-04-11_03-07-32.sql', '8699', 0, 'success', NULL, '2026-04-11 01:07:32'),
+(2, 'files', 'admin', '../../backups/files/backup_2026-04-11_03-11-21/', NULL, 5, 'success', NULL, '2026-04-11 01:11:21'),
+(3, 'database', 'admin', '../../backups/epwts_db_2026-04-11_03-11-43.sql', '9290', 0, 'success', NULL, '2026-04-11 01:11:43');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `deleted_documents`
+--
+
+CREATE TABLE `deleted_documents` (
+  `id` int(11) NOT NULL,
+  `doc_id` varchar(20) NOT NULL,
+  `file_name` varchar(255) NOT NULL,
+  `file_path` varchar(255) DEFAULT NULL,
+  `section` varchar(50) DEFAULT NULL,
+  `doc_type` varchar(50) DEFAULT NULL,
+  `uploaded_by` varchar(50) DEFAULT NULL,
+  `upload_date` datetime DEFAULT NULL,
+  `expiry_date` date DEFAULT NULL,
+  `description` text DEFAULT NULL,
+  `deleted_by` varchar(50) DEFAULT NULL,
+  `deleted_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -79,7 +127,24 @@ INSERT INTO `requests` (`id`, `doc_id`, `requested_by`, `request_type`, `status`
 (7, '4', 'ab', '', 'Declined', 'Let me edit this'),
 (8, '4', 'ab', '', 'Declined', 'Let me edit this'),
 (9, '4', 'ab', '', 'Declined', 'Let me edit this'),
-(10, '5', 'cw', 'View', 'Approved', 'Test View');
+(10, '5', 'cw', 'View', 'Approved', 'Test View'),
+(11, '4', 'ab', 'View', 'Approved', 'Test 4');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `restore_logs`
+--
+
+CREATE TABLE `restore_logs` (
+  `id` int(11) NOT NULL,
+  `restore_type` enum('database','files','document') NOT NULL,
+  `restored_from` varchar(255) DEFAULT NULL,
+  `restored_by` varchar(50) NOT NULL,
+  `status` enum('success','failed','partial') DEFAULT 'success',
+  `notes` text DEFAULT NULL,
+  `restored_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -124,64 +189,29 @@ CREATE TABLE `user_permissions` (
   `is_active` tinyint(1) DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- --------------------------------------------------------
-
---
--- Table structure for table `deleted_documents`
---
-
-CREATE TABLE `deleted_documents` (
-  `id` int(11) NOT NULL,
-  `doc_id` varchar(20) NOT NULL,
-  `file_name` varchar(255) NOT NULL,
-  `file_path` varchar(255) DEFAULT NULL,
-  `section` varchar(50) DEFAULT NULL,
-  `doc_type` varchar(50) DEFAULT NULL,
-  `uploaded_by` varchar(50) DEFAULT NULL,
-  `upload_date` datetime DEFAULT NULL,
-  `expiry_date` date DEFAULT NULL,
-  `description` text DEFAULT NULL,
-  `deleted_by` varchar(50) DEFAULT NULL,
-  `deleted_at` timestamp NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `backup_logs`
---
-
-CREATE TABLE `backup_logs` (
-  `id` int(11) NOT NULL,
-  `backup_type` enum('database','files','document_deletion') NOT NULL,
-  `created_by` varchar(50) NOT NULL,
-  `file_path` varchar(255) DEFAULT NULL,
-  `file_size` varchar(50) DEFAULT NULL,
-  `file_count` int(11) DEFAULT 0,
-  `status` enum('success','failed','partial') DEFAULT 'success',
-  `notes` text DEFAULT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `restore_logs`
---
-
-CREATE TABLE `restore_logs` (
-  `id` int(11) NOT NULL,
-  `restore_type` enum('database','files','document') NOT NULL,
-  `restored_from` varchar(255) DEFAULT NULL,
-  `restored_by` varchar(50) NOT NULL,
-  `status` enum('success','failed','partial') DEFAULT 'success',
-  `notes` text DEFAULT NULL,
-  `restored_at` timestamp NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
 --
 -- Indexes for dumped tables
 --
+
+--
+-- Indexes for table `backup_logs`
+--
+ALTER TABLE `backup_logs`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_backup_type` (`backup_type`),
+  ADD KEY `idx_created_by` (`created_by`),
+  ADD KEY `idx_created_at` (`created_at`),
+  ADD KEY `idx_status` (`status`);
+
+--
+-- Indexes for table `deleted_documents`
+--
+ALTER TABLE `deleted_documents`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_doc_id` (`doc_id`),
+  ADD KEY `idx_section` (`section`),
+  ADD KEY `idx_deleted_at` (`deleted_at`),
+  ADD KEY `idx_deleted_by` (`deleted_by`);
 
 --
 -- Indexes for table `documents`
@@ -195,6 +225,16 @@ ALTER TABLE `documents`
 --
 ALTER TABLE `requests`
   ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `restore_logs`
+--
+ALTER TABLE `restore_logs`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_restore_type` (`restore_type`),
+  ADD KEY `idx_restored_by` (`restored_by`),
+  ADD KEY `idx_restored_at` (`restored_at`),
+  ADD KEY `idx_status` (`status`);
 
 --
 -- Indexes for table `users`
@@ -211,38 +251,20 @@ ALTER TABLE `user_permissions`
   ADD UNIQUE KEY `unique_permission` (`user_id`,`permission_type`);
 
 --
--- Indexes for table `deleted_documents`
---
-ALTER TABLE `deleted_documents`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `idx_doc_id` (`doc_id`),
-  ADD KEY `idx_section` (`section`),
-  ADD KEY `idx_deleted_at` (`deleted_at`),
-  ADD KEY `idx_deleted_by` (`deleted_by`);
-
---
--- Indexes for table `backup_logs`
---
-ALTER TABLE `backup_logs`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `idx_backup_type` (`backup_type`),
-  ADD KEY `idx_created_by` (`created_by`),
-  ADD KEY `idx_created_at` (`created_at`),
-  ADD KEY `idx_status` (`status`);
-
---
--- Indexes for table `restore_logs`
---
-ALTER TABLE `restore_logs`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `idx_restore_type` (`restore_type`),
-  ADD KEY `idx_restored_by` (`restored_by`),
-  ADD KEY `idx_restored_at` (`restored_at`),
-  ADD KEY `idx_status` (`status`);
-
---
 -- AUTO_INCREMENT for dumped tables
 --
+
+--
+-- AUTO_INCREMENT for table `backup_logs`
+--
+ALTER TABLE `backup_logs`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
+-- AUTO_INCREMENT for table `deleted_documents`
+--
+ALTER TABLE `deleted_documents`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `documents`
@@ -254,7 +276,13 @@ ALTER TABLE `documents`
 -- AUTO_INCREMENT for table `requests`
 --
 ALTER TABLE `requests`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+
+--
+-- AUTO_INCREMENT for table `restore_logs`
+--
+ALTER TABLE `restore_logs`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `users`
@@ -266,24 +294,6 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `user_permissions`
 --
 ALTER TABLE `user_permissions`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `deleted_documents`
---
-ALTER TABLE `deleted_documents`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `backup_logs`
---
-ALTER TABLE `backup_logs`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `restore_logs`
---
-ALTER TABLE `restore_logs`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
